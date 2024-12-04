@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Especie {
+  id        Int      @id @default(autoincrement())
+  nome      String   // Nome da espécie, até 60 caracteres
+  animais   Animal[]
+  @@map("especies")
+}
+
+model Animal {
+  id        Int      @id @default(autoincrement())
+  nome      String   // Nome do animal, até 60 caracteres
+  idade     Int      // Idade do animal
+  sexo      Sexos    // Sexo do animal
+  destaque  Boolean  @default(true) // Se é destaque ou não
+  foto      String   // URL ou referência da foto principal
+  descricao String?  // Descrição opcional do animal
+  createdAt DateTime @default(now()) // Data de criação
+  updatedAt DateTime @updatedAt      // Data de última atualização
+  porte     Portes   @default(Medio) // Porte do animal
+  especie   Especie  @relation(fields: [especieId], references: [id])
+  especieId Int
+  admin     Admin    @relation(fields: [adminId], references: [id])
+  adminId   Int      @default(1)
+  fotos     Foto[]
+  pedidos   Pedido[]
+  @@map("animais")
+}
+
+model Foto {
+  id         Int    @id @default(autoincrement())
+  descricao  String // Descrição da foto, até 30 caracteres
+  codigoFoto String // Código ou URL da foto
+  animal     Animal @relation(fields: [animalId], references: [id])
+  animalId   Int
+  @@map("fotos")
+}
+
+model Adotante {
+  id           String   @id @default(uuid()) // UUID nativo do PostgreSQL
+  nome         String   // Nome do adotante, até 60 caracteres
+  fone         String   // Telefone do adotante, até 60 caracteres
+  endereco     String   // Endereço do adotante, até 180 caracteres
+  email        String   @unique // Email do adotante, único
+  senha        String   // Senha do adotante
+  recoveryCode String?  // Código de recuperação (opcional)
+  createdAt    DateTime @default(now()) // Data de criação
+  updatedAt    DateTime @updatedAt      // Data de última atualização
+  pedidos      Pedido[]
+  @@map("adotantes")
+}
+
+model Pedido {
+  id          Int       @id @default(autoincrement())
+  adotante    Adotante  @relation(fields: [adotanteId], references: [id])
+  adotanteId  String    // Referência ao ID do adotante (UUID)
+  animal      Animal    @relation(fields: [animalId], references: [id])
+  animalId    Int       // Referência ao ID do animal
+  descricao   String    // Descrição do pedido, até 300 caracteres
+  resposta    String?   // Resposta ao pedido (opcional)
+  createdAt   DateTime  @default(now()) // Data de criação
+  updatedAt   DateTime  @updatedAt      // Data de última atualização
+  @@map("pedidos")
+}
+
+model Admin {
+  id         Int      @id @default(autoincrement())
+  nome       String   // Nome do administrador, até 60 caracteres
+  email      String   @unique // Email do administrador, único
+  senha      String   // Senha do administrador
+  createdAt  DateTime @default(now()) // Data de criação
+  updatedAt  DateTime @updatedAt      // Data de última atualização
+  animais    Animal[]
+  @@map("admins")
+}
+
+enum Portes {
+  Pequeno
+  Medio
+  Grande
+}
+
+enum Sexos {
+  Macho
+  Femea
+}

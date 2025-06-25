@@ -9,10 +9,10 @@ router.get("/", async (req, res) => {
   try {
     const animais = await prisma.animal.findMany({
       include: {
-        especie: true 
+        especie: true
       }
 
-    
+
     })
     res.status(200).json(animais)
   } catch (error) {
@@ -24,6 +24,11 @@ router.post("/", async (req, res) => {
   const { nome, idade, sexo, foto, descricao, porte, especieId } = req.body;
 
   if (!nome || !idade || !sexo || !foto || !porte || !especieId) {
+ console.log("dados recebidos para o post",req.body);
+
+
+
+   
     res.status(400).json({ erro: "Informe nome, sexo, idade, porte e especieId" });
     return;
   }
@@ -51,12 +56,14 @@ router.delete("/:id", verificaToken, async (req, res) => {
   }
 })
 
-router.put("/:id",  async (req, res) => {
+router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const { nome, idade, sexo, foto, descricao, porte, especieId } = req.body;
 
   if (!nome || !idade || !sexo || !foto || !porte || !especieId) {
+    
     res.status(400).json({ erro: "Informe nome, idade, porte e especieId" });
+    
     return;
   }
 
@@ -71,6 +78,35 @@ router.put("/:id",  async (req, res) => {
   }
 })
 
+function normalizarTermo(termo: string): string | undefined {
+  switch (termo.trim().toLowerCase()) {
+    case 'macho':
+      return 'Macho';
+    case 'fêmea':
+    case 'femea':
+      return 'Femea';
+    case 'gato':
+    case 'gatinho':
+      return 'Gato';
+    case 'cachorro':
+    case 'cão':
+    case 'cao':
+      return 'Cachorro';
+    case 'grande':
+    case 'Grande':
+      return 'Grande';
+    case 'pequeno':
+    case 'Pequeno':
+      return 'Pequeno';
+    case 'medio':
+    case 'médio':
+    case 'Médio':
+      return 'Medio';
+    default:
+      return undefined;
+  }
+}
+
 router.get("/pesquisa/:termo", async (req, res) => {
   const { termo } = req.params
 
@@ -78,48 +114,49 @@ router.get("/pesquisa/:termo", async (req, res) => {
   const termoNumero = Number(termo)
 
   // Se a conversao gerou um NaN (Nota a Number)
-  if (isNaN(termoNumero)){
+  if (isNaN(termoNumero)) {
     try {
-      let termoCorrigido: string | undefined;
+      const termoCorrigido = normalizarTermo(termo);
 
-      // Verifica se o termo é "macho" ou "fêmea" (em qualquer formato)
-      if (termo.toLowerCase() === 'macho') {
-          termoCorrigido = 'Macho';
-      } else if (termo.toLowerCase() === 'femea' || termo.toLowerCase() === 'fêmea') {
-          termoCorrigido = 'Femea';
-      } else {
-          termoCorrigido = undefined;
+      if (!termoCorrigido) {
+        throw new Error('termo não reconhecido')
       }
 
       const animais = await prisma.animal.findMany({
-          include: {
-              especie: true,
-          },
-          where: {
-              OR: [
-                  { nome: { contains: termo } },
-                  { especie: { nome: { contains: termo } } },
-                  // Se o termo for "Macho" ou "Femea", faz a busca por sexo
-                  ...(termoCorrigido ? [{ sexo: termoCorrigido as 'Macho' | 'Femea' }] : [])
-              ]
-          }
-      });
-
-      res.status(200).json(animais);
-  } catch (error) {
-      res.status(400).json(error);
-  }
-    
-  }else{
-    try {
-      const animais = await prisma.animal.findMany({
         include: {
-          especie: true, 
+          especie: true,
         },
         where: {
           OR: [
-            { idade: termoNumero},
-        
+            { nome: { contains: termo } },
+            { especie: { nome: { contains: termo } } },
+            // Se o termo for "Macho" ou "Femea", faz a busca por sexo
+            ...(termoCorrigido === 'Macho' || termoCorrigido === 'Femea' ?
+              [{ sexo: termoCorrigido as 'Macho' | 'Femea' }] : []),
+            ...(termoCorrigido === 'Pequeno' || termoCorrigido === 'Medio' || termoCorrigido === 'Grande' ?
+              [{ porte: termoCorrigido as 'Pequeno' | 'Medio' | 'Grande' }] : []),
+
+            ...(termoCorrigido === 'Gato' || termoCorrigido === 'Cachorro' ?
+              [{ especie: { nome: { equals: termoCorrigido, mode: 'insensitive' as const } } }] : []),
+          ]
+        }
+      });
+
+      res.status(200).json(animais);
+    } catch (error) {
+      res.status(400).json(error);
+    }
+
+  } else {
+    try {
+      const animais = await prisma.animal.findMany({
+        include: {
+          especie: true,
+        },
+        where: {
+          OR: [
+            { idade: termoNumero },
+
           ]
         }
       })
@@ -136,7 +173,7 @@ router.get("/:id", async (req, res) => {
 
   try {
     const animal = await prisma.animal.findUnique({
-      where : { id: Number(id)},
+      where: { id: Number(id) },
       include: {
         especie: true
       }

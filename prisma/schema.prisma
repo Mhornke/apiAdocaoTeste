@@ -26,7 +26,7 @@ model Animal {
   idade     Int      // Idade do animal
   sexo      Sexos    // Sexo do animal
   destaque  Boolean  @default(true) // Se é destaque ou não
-  foto      String   // URL ou referência da foto principal
+  foto      String   @db.Text   // URL ou referência da foto principal
   descricao String?  // Descrição opcional do animal
   createdAt DateTime @default(now()) // Data de criação
   updatedAt DateTime @updatedAt      // Data de última atualização

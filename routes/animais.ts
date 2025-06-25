@@ -20,7 +20,7 @@ router.get("/", async (req, res) => {
   }
 })
 
-router.post("/", verificaToken, async (req, res) => {
+router.post("/", async (req, res) => {
   const { nome, idade, sexo, foto, descricao, porte, especieId } = req.body;
 
   if (!nome || !idade || !sexo || !foto || !porte || !especieId) {
@@ -51,7 +51,7 @@ router.delete("/:id", verificaToken, async (req, res) => {
   }
 })
 
-router.put("/:id", verificaToken, async (req, res) => {
+router.put("/:id",  async (req, res) => {
   const { id } = req.params;
   const { nome, idade, sexo, foto, descricao, porte, especieId } = req.body;
 

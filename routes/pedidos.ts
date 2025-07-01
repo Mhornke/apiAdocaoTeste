@@ -11,7 +11,7 @@ const router = Router()
 //   try {
 //     const pedidos = await prisma.pedido.findMany(
 //       {
-//         include: { adotante: true, animal: true}
+//         include: { user: true, animal: true}
 //       }
 //     )
 //     res.status(200).json(pedidos)
@@ -23,17 +23,17 @@ const router = Router()
 
 
 router.post("/", async (req, res) => {
-  const { adotanteId, animalId, descricao  } = req.body
+  const { userId, animalId, descricao  } = req.body
 
-  if (!adotanteId || !animalId || !descricao) {
-    res.status(400).json({ erro: "Informe adotanteId, animalId e descrição!" })
+  if (!userId || !animalId || !descricao) {
+    res.status(400).json({ erro: "Informe userId, animalId e descrição!" })
     return
   }
 
 
   try {
     const pedido = await prisma.pedido.create({
-      data: { adotanteId, animalId, descricao }
+      data: { userId, animalId, descricao }
     })
     res.status(201).json(pedido)
   } catch (error) {
@@ -60,7 +60,7 @@ const info = await transporter.sendMail({
   to: email, // list of receivers
   subject: "Re: Pedido de adoção", // Subject line
   text: resposta, // plain text body
-  html: `<h3>Estimado Adotante ${nome}</h3>
+  html: `<h3>Estimado user ${nome}</h3>
         <h3>Pedido: ${descricao} </h3>
         <p>Nós da equipe Adote.com agradecemos seu interesse em adotar um de nossos
         amigos que aguardam um lar. </p>`
@@ -89,13 +89,13 @@ router.patch("/:id", verificaToken, async (req, res) => {
     const dados = await prisma.pedido.findUnique({
       where: { id: Number(id) },
       include: {
-        adotante: true 
+        user: true 
       }
     })
     
     // Envia o e-mail com os dados atualizados
-    enviaEmail(dados?.adotante.nome as string,
-               dados?.adotante.email as string, 
+    enviaEmail(dados?.user.nome as string,
+               dados?.user.email as string, 
                dados?.descricao as string,
                resposta)
 
@@ -107,12 +107,12 @@ router.patch("/:id", verificaToken, async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const { adotanteId } = req.query; // Obtém o adotanteId da query string
+    const { userId } = req.query; // Obtém o userId da query string
     const pedidos = await prisma.pedido.findMany({
       where: {
-        adotanteId: adotanteId ? String(adotanteId) : undefined // Filtra os pedidos pelo adotanteId
+        userId: userId ? String(userId) : undefined // Filtra os pedidos pelo userId
       },
-      include: { adotante: true, animal:{ include:{especie: true}} }
+      include: { user: true, animal:{ include:{especie: true}} }
     });
     res.status(200).json(pedidos);
   } catch (error) {

@@ -5,7 +5,7 @@ import animaisRoutes from './routes/animais'
 import fotosRoutes from './routes/fotos'
 import adotatesRoutes from './routes/adotantes'
 import pedidosRoutes from './routes/pedidos'
-import adminsRoutes from './routes/admins'
+// import adminsRoutes from './routes/admins'
 import dashboardRoutes from './routes/dashboard'
 
 
@@ -21,7 +21,7 @@ app.use("/animais", animaisRoutes)
 app.use("/fotos", fotosRoutes)
 app.use("/adotantes", adotatesRoutes)
 app.use("/pedidos", pedidosRoutes)
-app.use("/admins", adminsRoutes)
+// app.use("/admins", adminsRoutes)
 app.use("/dashboard", dashboardRoutes)
 
 

@@ -6,10 +6,10 @@ const router = Router()
 
 router.get("/gerais", async (req, res) => {
   try {
-    const adotantes = await prisma.adotante.count()
+    const users = await prisma.user.count()
     const animais = await prisma.animal.count()
     const pedidos = await prisma.pedido.count()
-    res.status(200).json({ adotantes, animais, pedidos })
+    res.status(200).json({ users, animais, pedidos })
   } catch (error) {
     res.status(400).json(error)
   }

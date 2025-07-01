@@ -21,9 +21,9 @@ router.get("/", async (req, res) => {
 })
 
 router.post("/", async (req, res) => {
-  const { nome, idade, sexo, foto, descricao, porte, especieId } = req.body;
+  const { nome, idade, sexo, foto, descricao, porte, especieId, userId } = req.body;
 
-  if (!nome || !idade || !sexo || !foto || !porte || !especieId) {
+  if (!nome || !idade || !sexo || !foto || !porte || !especieId || !userId) {
  console.log("dados recebidos para o post",req.body);
 
 
@@ -35,7 +35,7 @@ router.post("/", async (req, res) => {
 
   try {
     const animal = await prisma.animal.create({
-      data: { nome, idade, sexo, foto, descricao, porte, especieId },
+      data: { nome, idade, sexo, foto, descricao, porte, especieId, userId },
     });
     res.status(201).json(animal);
   } catch (error) {
@@ -58,11 +58,11 @@ router.delete("/:id", verificaToken, async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
-  const { nome, idade, sexo, foto, descricao, porte, especieId } = req.body;
+  const { nome, idade, sexo, foto, descricao, porte, especieId, userId } = req.body;
 
-  if (!nome || !idade || !sexo || !foto || !porte || !especieId) {
+  if (!nome || !idade || !sexo || !foto || !porte || !especieId || userId) {
     
-    res.status(400).json({ erro: "Informe nome, idade, porte e especieId" });
+    res.status(400).json({ erro: "Informe nome, idade, porte, especieId e userId" });
     
     return;
   }
@@ -70,7 +70,7 @@ router.put("/:id", async (req, res) => {
   try {
     const animal = await prisma.animal.update({
       where: { id: Number(id) },
-      data: { nome, idade, sexo, foto, descricao, porte, especieId },
+      data: { nome, idade, sexo, foto, descricao, porte, especieId, userId },
     });
     res.status(200).json(animal);
   } catch (error) {

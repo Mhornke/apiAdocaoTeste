@@ -11,11 +11,11 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   try {
-    const adotantes = await prisma.adotante.findMany();
-    res.status(200).json(adotantes);
+    const users = await prisma.user.findMany();
+    res.status(200).json(users);
   } catch (error) {
-    console.error("Erro ao buscar adotantes:", error);
-    res.status(500).json({ erro: "Erro ao buscar adotantes." });
+    console.error("Erro ao buscar users:", error);
+    res.status(500).json({ erro: "Erro ao buscar users." });
   }
 });
 
@@ -66,13 +66,13 @@ router.post("/", async (req, res) => {
   const hash = bcrypt.hashSync(senha, salt);
 
   try {
-    const adotante = await prisma.adotante.create({
+    const user = await prisma.user.create({
       data: { nome, fone, endereco, email, senha: hash }
     });
-    res.status(201).json(adotante);
+    res.status(201).json(user);
   } catch (error) {
-    console.error("Erro ao criar adotante:", error);
-    res.status(500).json({ erro: "Erro ao criar adotante." });
+    console.error("Erro ao criar user:", error);
+    res.status(500).json({ erro: "Erro ao criar user." });
   }
 });
 
@@ -85,18 +85,18 @@ router.post("/login", async (req, res) => {
   }
 
   try {
-    const adotante = await prisma.adotante.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email }
     });
 
-    if (!adotante || !bcrypt.compareSync(senha, adotante.senha)) {
+    if (!user || !bcrypt.compareSync(senha, user.senha)) {
       return res.status(400).json({ erro: mensaPadrao });
     }
 
     res.status(200).json({
-      id: adotante.id,
-      nome: adotante.nome,
-      email: adotante.email
+      id: user.id,
+      nome: user.nome,
+      email: user.email
     });
   } catch (error) {
     console.error("Erro ao fazer login:", error);
@@ -108,22 +108,22 @@ router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const adotante = await prisma.adotante.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id }
     });
 
-    if (!adotante) {
-      return res.status(404).json({ erro: "Adotante não encontrado." });
+    if (!user) {
+      return res.status(404).json({ erro: "user não encontrado." });
     }
 
     res.status(200).json({
-      id: adotante.id,
-      nome: adotante.nome,
-      email: adotante.email
+      id: user.id,
+      nome: user.nome,
+      email: user.email
     });
   } catch (error) {
-    console.error("Erro ao buscar adotante:", error);
-    res.status(500).json({ erro: "Erro ao buscar adotante." });
+    console.error("Erro ao buscar user:", error);
+    res.status(500).json({ erro: "Erro ao buscar user." });
   }
 });
 
@@ -148,7 +148,7 @@ async function enviaEmail(nome: string, email: string, descricao: string, respos
     to: email,
     subject: "Re: Pedido de adoção",
     text: resposta,
-    html: `<h3>Estimado Adotante ${nome}</h3>
+    html: `<h3>Estimado user ${nome}</h3>
            <h3>Pedido: ${descricao}</h3>
            <p><strong>${resposta}</strong></p>
            <p>Nós da equipe Adote.com agradecemos seu interesse em adotar um de nossos amigos que aguardam um lar.</p>`
@@ -166,26 +166,26 @@ router.post("/senha/solicitar-troca", async (req, res) => {
   }
 
   try {
-    const adotante = await prisma.adotante.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email }
     });
 
-    if (!adotante) {
-      return res.status(404).json({ erro: "Adotante não encontrado." });
+    if (!user) {
+      return res.status(404).json({ erro: "user não encontrado." });
     }
 
     // Gerar um código de verificação
     const codigo = crypto.randomBytes(3).toString('hex'); // Gera um código de 6 caracteres
     // Armazenar o código e o email no banco de dados
-    await prisma.adotante.update({
+    await prisma.user.update({
       where: { email },
-      data: { recoveryCode: codigo } // Supondo que você tenha esse campo na tabela adotantes
+      data: { recoveryCode: codigo } // Supondo que você tenha esse campo na tabela users
     });
 
     // Enviar o e-mail com o código
     const descricao = "Código para troca de senha"; // descrição do pedido
     const resposta = `Seu código para troca de senha é: ${codigo}`;
-    await enviaEmail(adotante.nome, email, descricao, resposta);
+    await enviaEmail(user.nome, email, descricao, resposta);
 
     res.status(200).json({ mensagem: "Código enviado para o e-mail." });
   } catch (error) {
@@ -202,19 +202,19 @@ router.post("/senha/trocar", async (req, res) => {
   }
 
   try {
-    const adotante = await prisma.adotante.findUnique({
+    const user = await prisma.user.findUnique({
       where: { email }
     });
 
-    if (!adotante || adotante.recoveryCode !== codigo) {
-      return res.status(400).json({ erro: "Código inválido ou adotante não encontrado." });
+    if (!user || user.recoveryCode !== codigo) {
+      return res.status(400).json({ erro: "Código inválido ou user não encontrado." });
     }
 
     const salt = bcrypt.genSaltSync(12);
     const hash = bcrypt.hashSync(novaSenha, salt);
 
     // Atualizar a senha e limpar o código
-    await prisma.adotante.update({
+    await prisma.user.update({
       where: { email },
       data: {
         senha: hash,
@@ -233,10 +233,10 @@ router.delete("/:id", async (req, res) => {
   const { id } = req.params
 
   try {
-    const adotante = await prisma.adotante.delete({
+    const user = await prisma.user.delete({
       where: { id: String(id) }
     })
-    res.status(200).json(adotante)
+    res.status(200).json(user)
   } catch (error) {
     res.status(400).json(error)
   }

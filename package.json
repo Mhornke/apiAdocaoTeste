@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "npx ts-node-dev --respawn index.ts",
+     "build": "tsc",
     "vercel-build": "npx prisma migrate deploy",
     "postinstall": "prisma generate"
   },
@@ -17,7 +18,7 @@
     "@types/react": "^18.3.11",
     "prisma": "^5.20.0",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",

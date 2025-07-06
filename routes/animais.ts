@@ -9,7 +9,9 @@ router.get("/", async (req, res) => {
   try {
     const animais = await prisma.animal.findMany({
       include: {
-        especie: true
+        especie: true,
+        pedidos: true
+    
       }
 
 
@@ -60,7 +62,8 @@ router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const { nome, idade, sexo, foto, descricao, porte, especieId, userId } = req.body;
 
-  if (!nome || !idade || !sexo || !foto || !porte || !especieId || userId) {
+  if (!nome || !idade || !sexo || !foto || !porte || !especieId || !userId) {
+
     
     res.status(400).json({ erro: "Informe nome, idade, porte, especieId e userId" });
     
@@ -77,6 +80,20 @@ router.put("/:id", async (req, res) => {
     res.status(400).json(error);
   }
 })
+router.patch("/:id/adotar", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const animal = await prisma.animal.update({
+      where: { id: Number(id) },
+      data: { status: false },
+    });
+
+    res.status(200).json({ mensagem: "Animal marcado como adotado!", animal });
+  } catch (error) {
+    res.status(400).json({ erro: "Não foi possível marcar como adotado." });
+  }
+});
 
 function normalizarTermo(termo: string): string | undefined {
   switch (termo.trim().toLowerCase()) {
@@ -127,6 +144,7 @@ router.get("/pesquisa/:termo", async (req, res) => {
           especie: true,
         },
         where: {
+          status:true,
           OR: [
             { nome: { contains: termo } },
             { especie: { nome: { contains: termo } } },
@@ -175,7 +193,8 @@ router.get("/:id", async (req, res) => {
     const animal = await prisma.animal.findUnique({
       where: { id: Number(id) },
       include: {
-        especie: true
+        especie: true,
+        fotos:true
       }
     })
     res.status(200).json(animal)

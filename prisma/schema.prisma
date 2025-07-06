@@ -26,6 +26,7 @@ model Animal {
   nome      String
   idade     Int?
   sexo      Sexos
+  status    Boolean @default(true)
   destaque  Boolean  @default(false)
   foto      String   @db.Text
   descricao String?

@@ -45,27 +45,49 @@ router.get("/:animalId", async (req, res) => {
     res.status(400).json(error)
   }
 })
+router.post("/", async (req, res) => {
+  const { descricao, animalId, codigoFoto } = req.body;
 
-router.post("/", upload.single('codigoFoto'), async (req, res) => {
-  const { descricao, animalId } = req.body
-  const codigo = req.file?.buffer.toString("base64")
-
-  if (!descricao || !animalId || !codigo) {
-    res.status(400).json({ "erro": "Informe descricao, animalId e codigoFoto!" })
-    return
+  if (!descricao || !animalId || !codigoFoto) {
+    res.status(400).json({ erro: "Informe descricao, animalId e codigoFoto!" });
+    return;
   }
 
   try {
-    const fotos = await prisma.foto.create({
-      data: { descricao, animalId: Number(animalId),
-              codigoFoto: codigo as string
-       }
-    })
-    res.status(201).json(fotos)
+    const foto = await prisma.foto.create({
+      data: {
+        descricao,
+        animalId: Number(animalId),
+        codigoFoto, 
+      }
+    });
+    res.status(201).json(foto);
   } catch (error) {
-    res.status(400).json(error)
+    res.status(400).json(error);
   }
-})
+});
+
+
+// router.post("/", upload.single('codigoFoto'), async (req, res) => {
+//   const { descricao, animalId } = req.body
+//   const codigo = req.file?.buffer.toString("base64")
+
+//   if (!descricao || !animalId || !codigo) {
+//     res.status(400).json({ "erro": "Informe descricao, animalId e codigoFoto!" })
+//     return
+//   }
+
+//   try {
+//     const fotos = await prisma.foto.create({
+//       data: { descricao, animalId: Number(animalId),
+//               codigoFoto: codigo as string
+//        }
+//     })
+//     res.status(201).json(fotos)
+//   } catch (error) {
+//     res.status(400).json(error)
+//   }
+// })
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params

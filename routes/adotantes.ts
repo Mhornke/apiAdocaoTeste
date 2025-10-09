@@ -80,7 +80,7 @@ router.post("/", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const { email, senha } = req.body;
+  const { email, senha, persist } = req.body;
   const mensaPadrao = "Login ou senha incorretos";
 
   if (!email || !senha) {
@@ -95,21 +95,20 @@ router.post("/login", async (req, res) => {
     if (!user || !bcrypt.compareSync(senha, user.senha)) {
       return res.status(400).json({ erro: mensaPadrao });
     }
+const tempoToken = persist? "7d" : "2h";
 
-    // 1. Gera o Payload para o token
-    const tokenPayload = { 
-        id: user.id, 
-        email: user.email 
-    };
+    const token =jwt.sing(
+        { id: user.id, email: user.email },
+        JWT_SECRET,
+        { expiresIn: tempoToken }
+    )
 
-    // 2. Cria o Token JWT
-    const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '1d' });
-
+    
     res.status(200).json({
       id: user.id,
       nome: user.nome,
       email: user.email,
-      token: token // <-- AGORA INCLUI O TOKEN NA RESPOSTA
+      token
     });
   } catch (error) {
     console.error("Erro ao fazer login:", error);

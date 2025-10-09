@@ -97,7 +97,7 @@ router.post("/login", async (req, res) => {
     }
 const tempoToken = persist? "7d" : "2h";
 
-    const token =jwt.sing(
+    const token =jwt.sign(
         { id: user.id, email: user.email },
         JWT_SECRET,
         { expiresIn: tempoToken }

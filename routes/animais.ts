@@ -194,7 +194,8 @@ router.get("/:id", async (req, res) => {
       where: { id: Number(id) },
       include: {
         especie: true,
-        fotos:true
+        fotos:true,
+        user:true,
       }
     })
     res.status(200).json(animal)
@@ -205,3 +206,4 @@ router.get("/:id", async (req, res) => {
 
 
 export default router
+

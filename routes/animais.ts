@@ -200,7 +200,7 @@ router.get("/:id", async (req, res) => {
             id:true,
             fone:true,
             nome:true,
-            email.true
+            email:true
           }}
       }
     })

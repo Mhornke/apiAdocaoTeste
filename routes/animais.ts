@@ -10,8 +10,8 @@ router.get("/", async (req, res) => {
     const animais = await prisma.animal.findMany({
       include: {
         especie: true,
-        pedidos: true
-    
+        pedidos: true,
+        user: true,
       }
 
 
@@ -202,5 +202,6 @@ router.get("/:id", async (req, res) => {
     res.status(400).json(error)
   }
 })
+
 
 export default router

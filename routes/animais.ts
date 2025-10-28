@@ -11,7 +11,13 @@ router.get("/", async (req, res) => {
       include: {
         especie: true,
         pedidos: true,
-        user: true,
+        user:{
+          select:{
+            id:true,
+            fone:true,
+            nome:true,
+            email:true
+          }}
       }
 
 
@@ -212,5 +218,6 @@ router.get("/:id", async (req, res) => {
 
 
 export default router
+
 
 
